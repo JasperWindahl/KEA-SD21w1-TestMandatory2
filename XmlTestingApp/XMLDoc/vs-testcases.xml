@@ -1,0 +1,54 @@
+<?xml version = "1.0" ?>	
+	
+<!DOCTYPE testcases [<!ATTLIST story1case story CDATA #FIXED "1">
+<!ATTLIST story2case story CDATA #FIXED "2">
+<!ELEMENT testcases  (story1case*,story2case*,story3case*) >
+<!ELEMENT story1case (given+,when+,item,address,item?,then+,address?)>
+<!ELEMENT story2case (given+,when+,material+,then+)>
+<!ELEMENT given (#PCDATA)>
+<!ELEMENT when (#PCDATA)>
+<!ELEMENT then (#PCDATA)>
+<!ELEMENT item (#PCDATA)>
+<!ELEMENT address (#PCDATA)>
+<!ELEMENT material (#PCDATA)>]
+>
+	<testcases>
+
+		<story1case>
+			<given>depot of given item type is empty</given>
+			<when>actor is Shipping</when>
+			<item>Iphone</item>
+			<address>København</address>
+			<then>shipping is not authorized. No actions taken</then>
+		</story1case>
+		
+		<story1case>
+			<given>depot of given item type is not empty</given>
+			<when>actor is Shipping</when>
+			<item>Iphone</item>
+			<address>København</address>
+			<item>Iphone</item>
+			<then>is shipped to</then>
+			<address>København</address>			
+		</story1case>
+		
+		<story2case >
+			<given>said materials are not in stock</given>
+			<when>actor orders materials:</when>
+			<material>screws</material>
+			<material>hinges</material>	
+			<then>order is not placed </then>		
+		</story2case>
+		
+		<story2case>
+			<given>said materials are in stock</given>
+			<when>actor orders materials:</when>
+			<material>screws</material>
+			<material>hinges</material>
+			<then>order for material is placed </then>
+		</story2case>
+		
+
+	
+	</testcases>
+	
