@@ -79,12 +79,14 @@ namespace XmlTestingApp
 
         public static string ItemParser(XmlNode xmlNode)
         {
+            // Generate Lists of Elements based on keyword
             var givenElements = xmlNode.Cast<XmlElement>().Where(xmlElement => xmlElement.Name.ToLower() == "given").ToList();
             var whenElements = xmlNode.Cast<XmlElement>().Where(xmlElement => xmlElement.Name.ToLower() == "when").ToList();
             var itemElements = xmlNode.Cast<XmlElement>().Where(xmlElement => xmlElement.Name.ToLower() == "item").ToList();
             var addressElements = xmlNode.Cast<XmlElement>().Where(xmlElement => xmlElement.Name.ToLower() == "address").ToList();
             var thenElements = xmlNode.Cast<XmlElement>().Where(xmlElement => xmlElement.Name.ToLower() == "then").ToList();
 
+            // Build Output String using ElementsStringBuilder
             var result = $"IF {ElementsStringBuilder(whenElements)}" +
                          $" {ElementsStringBuilder(itemElements)}" +
                          $" TO {addressElements[0].InnerXml}" +
@@ -96,11 +98,13 @@ namespace XmlTestingApp
 
         public static string MaterialParser(XmlNode xmlNode)
         {
+            // Generate Lists of Elements based on keyword
             var givenElements = xmlNode.Cast<XmlElement>().Where(xmlElement => xmlElement.Name.ToLower() == "given").ToList();
             var whenElements = xmlNode.Cast<XmlElement>().Where(xmlElement => xmlElement.Name.ToLower() == "when").ToList();
             var materialElements = xmlNode.Cast<XmlElement>().Where(xmlElement => xmlElement.Name.ToLower() == "material").ToList();
             var thenElements = xmlNode.Cast<XmlElement>().Where(xmlElement => xmlElement.Name.ToLower() == "then").ToList();
 
+            // Build Output String using ElementsStringBuilder
             var result = $"IF {ElementsStringBuilder(whenElements)}" +
                          $" {ElementsStringBuilder(materialElements)}" +
                          $", AND {ElementsStringBuilder(givenElements)}" +
@@ -111,6 +115,7 @@ namespace XmlTestingApp
         public static string ElementsStringBuilder(List<XmlElement> elements)
         {
             var result = "";
+            // Iterates list, and combines elemets to generate string
             for (var i = 0; i < elements.Count; i++)
             {
                 if (i >= 1) result += " AND ";
