@@ -6,11 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="XMLDoc\vs-testcases.xml" />
+    <None Remove="XMLDoc\testcases.xml" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="XMLDoc\vs-testcases.xml">
+    <Content Include="XMLDoc\testcases.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

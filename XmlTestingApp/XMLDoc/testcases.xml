@@ -1,10 +1,13 @@
 <?xml version = "1.0" ?>	
 	
-<!DOCTYPE testcases [<!ATTLIST story1case story CDATA #FIXED "1">
-<!ATTLIST story2case story CDATA #FIXED "2">
-<!ELEMENT testcases  (story1case*,story2case*,story3case*) >
-<!ELEMENT story1case (given+,when+,item,address,item?,then+,address?)>
-<!ELEMENT story2case (given+,when+,material+,then+)>
+<!DOCTYPE testcases
+[<!ATTLIST shipitem story CDATA #FIXED "1">
+<!ATTLIST ordermaterials story CDATA #FIXED "2">
+<!ATTLIST queryitems story CDATA #FIXED "3">
+<!ELEMENT testcases (shipitem*,ordermaterials*,queryitems*)>
+<!ELEMENT shipitem (given+,when+,item,address,item?,then+,address?)>
+<!ELEMENT ordermaterials (given+,when+,material+,then+)>
+<!ELEMENT queryitems (given+,when+,item,then+)>
 <!ELEMENT given (#PCDATA)>
 <!ELEMENT when (#PCDATA)>
 <!ELEMENT then (#PCDATA)>
@@ -14,15 +17,15 @@
 >
 	<testcases>
 
-		<story1case>
+		<shipitem>
 			<given>depot of given item type is empty</given>
 			<when>actor is Shipping</when>
 			<item>Iphone</item>
 			<address>København</address>
 			<then>shipping is not authorized. No actions taken</then>
-		</story1case>
+		</shipitem>
 		
-		<story1case>
+		<shipitem>
 			<given>depot of given item type is not empty</given>
 			<when>actor is Shipping</when>
 			<item>Iphone</item>
@@ -30,25 +33,37 @@
 			<item>Iphone</item>
 			<then>is shipped to</then>
 			<address>København</address>			
-		</story1case>
+		</shipitem>
 		
-		<story2case >
+		<ordermaterials>
 			<given>said materials are not in stock</given>
 			<when>actor orders materials:</when>
 			<material>screws</material>
 			<material>hinges</material>	
 			<then>order is not placed </then>		
-		</story2case>
+		</ordermaterials>
 		
-		<story2case>
+		<ordermaterials>
 			<given>said materials are in stock</given>
 			<when>actor orders materials:</when>
 			<material>screws</material>
 			<material>hinges</material>
 			<then>order for material is placed </then>
-		</story2case>
+		</ordermaterials>
 		
-
-	
+		<queryitems>
+			<given>10 of said item is in depot</given>
+			<when>actor queries item of type:</when>
+			<item>Iphone</item>
+			<then>Return 10</then>		
+		</queryitems>
+		
+		<queryitems>
+			<given>10 of was item was in depot</given>
+			<given>1 of said item is shipped</given>
+			<when>actor queries item of type:</when>
+			<item>Iphone</item>
+			<then>Return 9</then>	
+		</queryitems>
 	</testcases>
 	

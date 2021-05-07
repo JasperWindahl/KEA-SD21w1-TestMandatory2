@@ -12,7 +12,7 @@ namespace XmlTestingApp
         private static string _inputFile;
         static void Main(string[] args)
         {
-            _inputFile = @"..\..\..\XMLDoc\vs-testcases.xml";
+            _inputFile = @"..\..\..\XMLDoc\testcases.xml";
 
             // Inline XML DTD Validation
             if (XmlValidation.ValidateDtd(_inputFile) != true)
@@ -44,43 +44,28 @@ namespace XmlTestingApp
             // Iterate the TestCases
             foreach (XmlNode @case in cases)
             {
-                var useOrderingParser = false;
-                var useShippingParser = false;
+                var caseName = @case.Name;
+                Console.WriteLine($"Case: {caseName}");
 
-                // Determine Correct Parser
-                for (var i = 0; i < @case.ChildNodes.Count; i++)
+                switch (caseName)
                 {
-                    switch (@case.ChildNodes[i].Name)
-                    {
-                        case "material":
-                            useOrderingParser = true;
-                            break;
-                        case "item":
-                            useShippingParser = true;
-                            break;
-                    }
-                }
-
-                // Output Result
-                if (useShippingParser)
-                {
-                    Console.WriteLine($"Case: {@case.Name}");
-                    Console.WriteLine(ShippingParser(@case));
-                }
-                else if (useOrderingParser)
-                {
-                    Console.WriteLine($"Case: {@case.Name}");
-                    Console.WriteLine(OrderingParser(@case));
-                }
-                else
-                {
-                    Console.WriteLine($"Case: {@case.Name}");
-                    Console.WriteLine($"{@case.Name}: No Suitable Parser");
+                    case "shipitem":
+                        Console.WriteLine(ShipItemParser(@case));
+                        break;
+                    case "ordermaterials":
+                        Console.WriteLine(OrderMaterialsParser(@case));
+                        break;
+                    case "queryitems":
+                        Console.WriteLine(QueryItemsParser(@case));
+                        break;
+                    default:
+                        Console.WriteLine("No Suitable Parser");
+                        break;
                 }
             }
         }
 
-        public static string ShippingParser(XmlNode xmlNode)
+        public static string ShipItemParser(XmlNode xmlNode)
         {
             // Generate Lists of Elements based on keyword
             var givenElements = xmlNode.Cast<XmlElement>().Where(xmlElement => xmlElement.Name.ToLower() == "given").ToList();
@@ -92,14 +77,14 @@ namespace XmlTestingApp
             // Build Output String using ElementsStringBuilder
             var result = $"IF {ElementsStringBuilder(whenElements)} " +
                          $"{ElementsStringBuilder(itemElements)} " +
-                         $"TO {addressElements[0].InnerXml} " +
+                         $"TO {addressElements[0].InnerXml}" +
                          $", AND {ElementsStringBuilder(givenElements)}" +
                          $", THEN {ElementsStringBuilder(thenElements)} " +
                          $"{(addressElements.Count > 1 ? addressElements[1].InnerXml : "")}";
             return result;
         }
 
-        public static string OrderingParser(XmlNode xmlNode)
+        public static string OrderMaterialsParser(XmlNode xmlNode)
         {
             // Generate Lists of Elements based on keyword
             var givenElements = xmlNode.Cast<XmlElement>().Where(xmlElement => xmlElement.Name.ToLower() == "given").ToList();
@@ -110,6 +95,20 @@ namespace XmlTestingApp
             // Build Output String using ElementsStringBuilder
             var result = $"IF {ElementsStringBuilder(whenElements)} " +
                          $"{ElementsStringBuilder(materialElements)}" +
+                         $", AND {ElementsStringBuilder(givenElements)}" +
+                         $", THEN {ElementsStringBuilder(thenElements)}";
+            return result;
+        }
+
+        public static string QueryItemsParser(XmlNode xmlNode)
+        {
+            var givenElements = xmlNode.Cast<XmlElement>().Where(xmlElement => xmlElement.Name.ToLower() == "given").ToList();
+            var whenElements = xmlNode.Cast<XmlElement>().Where(xmlElement => xmlElement.Name.ToLower() == "when").ToList();
+            var itemElements = xmlNode.Cast<XmlElement>().Where(xmlElement => xmlElement.Name.ToLower() == "item").ToList();
+            var thenElements = xmlNode.Cast<XmlElement>().Where(xmlElement => xmlElement.Name.ToLower() == "then").ToList();
+
+            var result = $"IF {ElementsStringBuilder(whenElements)} " +
+                         $"{ElementsStringBuilder(itemElements)} " +
                          $", AND {ElementsStringBuilder(givenElements)}" +
                          $", THEN {ElementsStringBuilder(thenElements)}";
             return result;
