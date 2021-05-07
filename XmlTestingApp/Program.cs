@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
+// ReSharper disable UnusedParameter.Local
 
 namespace XmlTestingApp
 {
@@ -14,8 +15,7 @@ namespace XmlTestingApp
             _inputFile = @"..\..\..\XMLDoc\vs-testcases.xml";
 
             // Inline XML DTD Validation
-            var isValid = XmlValidation.ValidateDtd(_inputFile);
-            if (isValid != true)
+            if (XmlValidation.ValidateDtd(_inputFile) != true)
             {
                 Console.WriteLine("The DTD for this XML File is Invalid, exiting!");
                 return;
@@ -30,54 +30,57 @@ namespace XmlTestingApp
 
             // Find Root Node
             var xmlRoot = xmlDoc.DocumentElement;
-            //Console.WriteLine("Root Node: {0}", xmlRoot?.Name);
+
+            // Baseline ErrorCheck: Check if Root Node is Valid and if Root Node is Testcases
+            if (xmlRoot == null || xmlRoot.Name.ToLower() != "testcases")
+            {
+                Console.WriteLine("XML File not valid for this application, exiting!");
+                return;
+            }
 
             // Generate Case List
-            XmlNodeList cases = xmlRoot?.ChildNodes;
+            XmlNodeList cases = xmlRoot.ChildNodes;
 
             // Iterate the TestCases
-            if (cases != null)
+            foreach (XmlNode @case in cases)
             {
-                foreach (XmlNode @case in cases)
+                var useOrderingParser = false;
+                var useShippingParser = false;
+
+                // Determine Correct Parser
+                for (var i = 0; i < @case.ChildNodes.Count; i++)
                 {
-                    var useMaterialParser = false;
-                    var useItemParser = false;
+                    switch (@case.ChildNodes[i].Name)
+                    {
+                        case "material":
+                            useOrderingParser = true;
+                            break;
+                        case "item":
+                            useShippingParser = true;
+                            break;
+                    }
+                }
 
-                    // Determine Correct Parser
-                    for (int i = 0; i < @case.ChildNodes.Count; i++)
-                    {
-                        switch (@case.ChildNodes[i].Name)
-                        {
-                            case "material":
-                                useMaterialParser = true;
-                                break;
-                            case "item":
-                                useItemParser = true;
-                                break;
-                        }
-                    }
-
-                    // Output Result
-                    if (useItemParser)
-                    {
-                        Console.WriteLine($"Case: {@case.Name}");
-                        Console.WriteLine(ItemParser(@case));
-                    }
-                    else if (useMaterialParser)
-                    {
-                        Console.WriteLine($"Case: {@case.Name}");
-                        Console.WriteLine(MaterialParser(@case));
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Case: {@case.Name}");
-                        Console.WriteLine($"{@case.Name}: No Suitable Parser");
-                    }
+                // Output Result
+                if (useShippingParser)
+                {
+                    Console.WriteLine($"Case: {@case.Name}");
+                    Console.WriteLine(ShippingParser(@case));
+                }
+                else if (useOrderingParser)
+                {
+                    Console.WriteLine($"Case: {@case.Name}");
+                    Console.WriteLine(OrderingParser(@case));
+                }
+                else
+                {
+                    Console.WriteLine($"Case: {@case.Name}");
+                    Console.WriteLine($"{@case.Name}: No Suitable Parser");
                 }
             }
         }
 
-        public static string ItemParser(XmlNode xmlNode)
+        public static string ShippingParser(XmlNode xmlNode)
         {
             // Generate Lists of Elements based on keyword
             var givenElements = xmlNode.Cast<XmlElement>().Where(xmlElement => xmlElement.Name.ToLower() == "given").ToList();
@@ -87,16 +90,16 @@ namespace XmlTestingApp
             var thenElements = xmlNode.Cast<XmlElement>().Where(xmlElement => xmlElement.Name.ToLower() == "then").ToList();
 
             // Build Output String using ElementsStringBuilder
-            var result = $"IF {ElementsStringBuilder(whenElements)}" +
-                         $" {ElementsStringBuilder(itemElements)}" +
-                         $" TO {addressElements[0].InnerXml}" +
+            var result = $"IF {ElementsStringBuilder(whenElements)} " +
+                         $"{ElementsStringBuilder(itemElements)} " +
+                         $"TO {addressElements[0].InnerXml} " +
                          $", AND {ElementsStringBuilder(givenElements)}" +
-                         $", THEN {ElementsStringBuilder(thenElements)}" +
-                         $" {(addressElements.Count > 1 ? addressElements[1].InnerXml : "")}";
+                         $", THEN {ElementsStringBuilder(thenElements)} " +
+                         $"{(addressElements.Count > 1 ? addressElements[1].InnerXml : "")}";
             return result;
         }
 
-        public static string MaterialParser(XmlNode xmlNode)
+        public static string OrderingParser(XmlNode xmlNode)
         {
             // Generate Lists of Elements based on keyword
             var givenElements = xmlNode.Cast<XmlElement>().Where(xmlElement => xmlElement.Name.ToLower() == "given").ToList();
@@ -105,8 +108,8 @@ namespace XmlTestingApp
             var thenElements = xmlNode.Cast<XmlElement>().Where(xmlElement => xmlElement.Name.ToLower() == "then").ToList();
 
             // Build Output String using ElementsStringBuilder
-            var result = $"IF {ElementsStringBuilder(whenElements)}" +
-                         $" {ElementsStringBuilder(materialElements)}" +
+            var result = $"IF {ElementsStringBuilder(whenElements)} " +
+                         $"{ElementsStringBuilder(materialElements)}" +
                          $", AND {ElementsStringBuilder(givenElements)}" +
                          $", THEN {ElementsStringBuilder(thenElements)}";
             return result;
