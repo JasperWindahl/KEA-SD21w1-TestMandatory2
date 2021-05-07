@@ -108,7 +108,7 @@ namespace XmlTestingApp
             var thenElements = xmlNode.Cast<XmlElement>().Where(xmlElement => xmlElement.Name.ToLower() == "then").ToList();
 
             var result = $"IF {ElementsStringBuilder(whenElements)} " +
-                         $"{ElementsStringBuilder(itemElements)} " +
+                         $"{ElementsStringBuilder(itemElements)}" +
                          $", AND {ElementsStringBuilder(givenElements)}" +
                          $", THEN {ElementsStringBuilder(thenElements)}";
             return result;
